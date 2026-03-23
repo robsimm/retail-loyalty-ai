@@ -24,7 +24,7 @@ class KNNRecommendationEngine:
     def __init__(self, catalogue: Catalogue) -> None:
         self._catalogue = catalogue
         self._profiles: list[ShopperProfile] = []
-        self._feature_matrix: np.ndarray | None = None  # type: ignore[type-arg]
+        self._feature_matrix: np.ndarray | None = None
         self._nn: NearestNeighbors | None = None
 
     def fit(self, profiles: list[ShopperProfile]) -> Self:

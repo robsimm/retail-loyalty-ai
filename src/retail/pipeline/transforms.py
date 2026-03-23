@@ -47,7 +47,9 @@ def normalize_features(df: pl.DataFrame, columns: list[str]) -> pl.DataFrame:
             df = df.with_columns(pl.lit(0.0).alias(f"{col}_norm"))
         else:
             df = df.with_columns(
-                ((pl.col(col) - col_min) / (col_max - col_min)).alias(f"{col}_norm")
+                ((pl.col(col) - col_min) / (col_max - col_min)).alias(  # type: ignore[operator]
+                    f"{col}_norm"
+                )
             )
     return df
 

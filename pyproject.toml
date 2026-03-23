@@ -49,3 +49,9 @@ select = ["E", "F", "I", "UP"]
 
 [tool.mypy]
 strict = true
+mypy_path = "src"
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["sklearn.*"]
+ignore_missing_imports = true

@@ -33,7 +33,7 @@ def channel_to_float(channel: str) -> float:
     return mapping.get(channel, 0.5)
 
 
-def feature_vector_from_profile(profile: ShopperProfile) -> np.ndarray:  # type: ignore[type-arg]
+def feature_vector_from_profile(profile: ShopperProfile) -> np.ndarray:
     """
     Build a numeric feature vector for KNN distance calculation.
 
@@ -52,7 +52,7 @@ def feature_vector_from_profile(profile: ShopperProfile) -> np.ndarray:  # type:
     return np.array(rfm + [channel] + cats, dtype=np.float64)
 
 
-def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:  # type: ignore[type-arg]
+def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     """Cosine similarity between two vectors. Returns value in [0, 1]."""
     norm_a = np.linalg.norm(a)
     norm_b = np.linalg.norm(b)

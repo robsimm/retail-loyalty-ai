@@ -46,8 +46,8 @@ class ShoppingAssistant:
             model=MODEL,
             max_tokens=MAX_TOKENS,
             system=system_prompt,
-            tools=TOOLS,
-            messages=messages,
+            tools=TOOLS,  # type: ignore[arg-type]
+            messages=messages,  # type: ignore[arg-type]
         )
 
         total_tokens = response.usage.input_tokens + response.usage.output_tokens
@@ -68,7 +68,7 @@ class ShoppingAssistant:
                         {
                             "type": "tool_result",
                             "tool_use_id": next(
-                                b.id for b in response.content if b.type == "tool_use"  # type: ignore[union-attr]
+                                b.id for b in response.content if b.type == "tool_use"
                             ),
                             "content": tool_output,
                         }
@@ -80,8 +80,8 @@ class ShoppingAssistant:
                 model=MODEL,
                 max_tokens=MAX_TOKENS,
                 system=system_prompt,
-                tools=TOOLS,
-                messages=messages,
+                tools=TOOLS,  # type: ignore[arg-type]
+                messages=messages,  # type: ignore[arg-type]
             )
             total_tokens += follow_up.usage.input_tokens + follow_up.usage.output_tokens
             content = [b.model_dump() for b in follow_up.content]

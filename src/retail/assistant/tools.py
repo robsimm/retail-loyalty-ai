@@ -116,7 +116,7 @@ def handle_tool_call(
             OrderItem(
                 product_id=str(item["product_id"]),
                 product_name=str(item["product_name"]),
-                quantity=int(item["quantity"]),  # type: ignore[arg-type]
+                quantity=int(item["quantity"]),  # type: ignore[call-overload]
                 unit_price_gbp=float(item["unit_price_gbp"]),  # type: ignore[arg-type]
             )
             for item in context.basket
