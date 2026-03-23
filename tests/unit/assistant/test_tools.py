@@ -81,3 +81,63 @@ def test_handle_unknown_tool_returns_error_message() -> None:
     ctx = make_context()
     result = handle_tool_call("nonexistent_tool", {}, ctx, make_catalogue())
     assert "Unknown tool" in result
+
+
+@pytest.mark.unit
+def test_place_order_stores_structured_receipt_in_context() -> None:
+    catalogue = make_catalogue()
+    product = catalogue.products[0]
+    ctx = make_context()
+    handle_tool_call(
+        "add_to_basket", {"product_id": product.product_id, "quantity": 3}, ctx, catalogue
+    )
+    handle_tool_call("place_order", {"delivery_slot": "tomorrow 9am-1pm"}, ctx, catalogue)
+    assert ctx.last_order is not None
+    assert str(ctx.last_order["order_id"]).startswith("ORD-")
+    assert ctx.last_order["total_gbp"] == pytest.approx(product.price_gbp * 3)
+    assert ctx.last_order["delivery"] == "tomorrow 9am-1pm"
+    assert ctx.last_order["status"] == "confirmed"
+    assert len(ctx.last_order["items"]) == 1  # type: ignore[arg-type]
+    item = ctx.last_order["items"][0]  # type: ignore[index]
+    assert item["product_name"] == product.name
+    assert item["quantity"] == 3
+    assert item["line_total_gbp"] == pytest.approx(product.price_gbp * 3)
+
+
+@pytest.mark.unit
+def test_place_order_receipt_items_match_basket_contents() -> None:
+    catalogue = make_catalogue()
+    ctx = make_context()
+    handle_tool_call(
+        "add_to_basket",
+        {"product_id": catalogue.products[0].product_id, "quantity": 1},
+        ctx,
+        catalogue,
+    )
+    handle_tool_call(
+        "add_to_basket",
+        {"product_id": catalogue.products[1].product_id, "quantity": 2},
+        ctx,
+        catalogue,
+    )
+    handle_tool_call("place_order", {"delivery_slot": "tomorrow 1pm-5pm"}, ctx, catalogue)
+    assert ctx.last_order is not None
+    assert len(ctx.last_order["items"]) == 2  # type: ignore[arg-type]
+    names = {i["product_name"] for i in ctx.last_order["items"]}  # type: ignore[union-attr]
+    assert catalogue.products[0].name in names
+    assert catalogue.products[1].name in names
+
+
+@pytest.mark.unit
+def test_place_order_clears_basket_after_storing_receipt() -> None:
+    catalogue = make_catalogue()
+    ctx = make_context()
+    handle_tool_call(
+        "add_to_basket",
+        {"product_id": catalogue.products[0].product_id, "quantity": 1},
+        ctx,
+        catalogue,
+    )
+    handle_tool_call("place_order", {"delivery_slot": "tomorrow 9am-1pm"}, ctx, catalogue)
+    assert ctx.basket == []
+    assert ctx.last_order is not None

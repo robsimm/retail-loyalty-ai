@@ -16,6 +16,9 @@
     #customer-select { padding: 0.5rem; border-radius: 4px; background: #16213e; color: #eee; border: 1px solid #444; width: 100%; }
     #rec-list { list-style: none; }
     #rec-list li { padding: 0.4rem 0; border-bottom: 1px solid #333; font-size: 0.85rem; }
+    #cart-list { list-style: none; }
+    #cart-list li { padding: 0.4rem 0; border-bottom: 1px solid #333; font-size: 0.85rem; }
+    #cart-total { font-size: 0.85rem; padding-top: 0.5rem; color: #a78bfa; font-weight: 600; }
 
     #chat-panel {
       flex: 1; display: flex; flex-direction: column; background: #fff;
@@ -32,6 +35,47 @@
     #send-btn { padding: 0.75rem 1.5rem; background: #6d28d9; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; }
     #send-btn:hover { background: #5b21b6; }
     #status { font-size: 0.75rem; color: #888; padding: 0 1.5rem 0.5rem; }
+
+    #pill-row {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      padding: 0.5rem 1.5rem; border-top: 1px solid #eee; background: #fafafa;
+      min-height: 0;
+    }
+    .pill {
+      padding: 0.35rem 0.9rem; background: #ede9fe; color: #5b21b6;
+      border: 1px solid #c4b5fd; border-radius: 999px; font-size: 0.85rem;
+      cursor: pointer; white-space: nowrap;
+    }
+    .pill:hover { background: #ddd6fe; }
+
+    .receipt-card { margin-right: auto; width: min(420px, 90%); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); border: 1px solid #6ee7b7; font-family: system-ui, sans-serif; }
+    .receipt-header { background: #059669; color: #fff; padding: 0.85rem 1.25rem; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1rem; border-radius: 12px 12px 0 0; }
+    .receipt-order-id { background: #ecfdf5; padding: 0.45rem 1.25rem; font-size: 0.78rem; color: #065f46; font-family: monospace; letter-spacing: 0.05em; border-bottom: 1px dashed #a7f3d0; }
+    .receipt-body { background: #f9fafb; padding: 0.75rem 1.25rem; }
+    .receipt-items { list-style: none; padding: 0; margin: 0; }
+    .receipt-items li { display: flex; justify-content: space-between; padding: 0.35rem 0; font-size: 0.875rem; color: #374151; border-bottom: 1px dotted #e5e7eb; }
+    .receipt-items li:last-child { border-bottom: none; }
+    .receipt-item-qty { color: #6b7280; margin: 0 0.75rem; white-space: nowrap; }
+    .receipt-item-price { font-weight: 600; white-space: nowrap; }
+    .receipt-divider { border: none; border-top: 2px dashed #d1fae5; margin: 0.5rem 0; }
+    .receipt-total-row { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 700; color: #065f46; padding: 0.25rem 0; }
+    .receipt-footer { background: #f0fdf4; padding: 0.6rem 1.25rem; font-size: 0.8rem; color: #6b7280; border-top: 1px solid #d1fae5; display: flex; gap: 0.4rem; align-items: center; border-radius: 0 0 12px 12px; }
+
+    .typing-indicator {
+      align-self: flex-start; background: #f0e6ff;
+      border-radius: 12px; border-bottom-left-radius: 2px;
+      padding: 0.75rem 1rem; display: flex; gap: 5px; align-items: center;
+    }
+    .typing-indicator span {
+      width: 8px; height: 8px; background: #6d28d9;
+      border-radius: 50%; animation: bounce 1.2s infinite;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
   </style>
 </head>
 <body>
@@ -44,12 +88,11 @@
       <option value="CUS_00000002">CUS_00000002</option>
       <option value="CUS_00000003">CUS_00000003</option>
     </select>
-  </div>
+    </div>
   <div>
-    <h2>Recommendations</h2>
-    <ul id="rec-list">
-      <li>Run /seed-data + /run-pipeline first</li>
-    </ul>
+    <h2>Basket</h2>
+    <ul id="cart-list"><li style="color:#666">Empty</li></ul>
+    <div id="cart-total"></div>
   </div>
 </div>
 
@@ -61,6 +104,7 @@
       <br><br>Try: "What do you recommend for me?" or "Buy my usual groceries for tomorrow."
     </div>
   </div>
+  <div id="pill-row"></div>
   <div id="status"></div>
   <div id="input-bar">
     <input id="user-input" type="text" placeholder="Type a message..." autocomplete="off" />
@@ -71,6 +115,20 @@
 <script>
   let ws = null;
   let sessionId = null;
+  let typingEl = null;
+
+  function showTyping() {
+    hideTyping();
+    typingEl = document.createElement('div');
+    typingEl.className = 'typing-indicator';
+    typingEl.innerHTML = '<span></span><span></span><span></span>';
+    messages.appendChild(typingEl);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function hideTyping() {
+    if (typingEl) { typingEl.remove(); typingEl = null; }
+  }
 
   const customerSelect = document.getElementById('customer-select');
   const messages = document.getElementById('messages');
@@ -80,6 +138,7 @@
 
   async function startSession() {
     const customerId = customerSelect.value;
+    renderCart([]);
     try {
       const res = await fetch(`/api/v1/chat/start?customer_id=${customerId}`, { method: 'POST' });
       const data = await res.json();
@@ -92,11 +151,84 @@
   }
 
   function connectWs() {
-    if (ws) ws.close();
+    if (ws) { ws.onclose = null; ws.onerror = null; ws.close(); }
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     ws = new WebSocket(`${proto}://${location.host}/api/v1/chat/${sessionId}`);
-    ws.onmessage = (e) => appendMessage('assistant', e.data);
+    ws.onmessage = (e) => {
+      hideTyping();
+      try {
+        const data = JSON.parse(e.data);
+        appendMessage('assistant', data.message);
+        renderReceipt(data.receipt);
+        renderPills(data.pills || []);
+        renderCart(data.cart || []);
+      } catch (_) {
+        appendMessage('assistant', e.data);
+      }
+    };
     ws.onclose = () => { status.textContent = 'Disconnected'; };
+    ws.onerror = () => { status.textContent = 'Connection error — check server logs'; };
+  }
+
+  function renderReceipt(receipt) {
+    if (!receipt) return;
+    const card = document.createElement('div');
+    card.className = 'receipt-card';
+    card.innerHTML = `
+      <div class="receipt-header">
+        <span>Order Confirmed</span><span>&#10003;</span>
+      </div>
+      <div class="receipt-order-id">${receipt.order_id}</div>
+      <div class="receipt-body">
+        <ul class="receipt-items receipt-items-list"></ul>
+        <hr class="receipt-divider" />
+        <div class="receipt-total-row"><span>Total</span><span>£${receipt.total_gbp.toFixed(2)}</span></div>
+      </div>
+      <div class="receipt-footer">&#128666; Delivery: ${receipt.delivery}</div>`;
+    const list = card.querySelector('.receipt-items-list');
+    receipt.items.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span style="flex:1">${item.product_name}</span><span class="receipt-item-qty">×${item.quantity}</span><span class="receipt-item-price">£${item.line_total_gbp.toFixed(2)}</span>`;
+      list.appendChild(li);
+    });
+    messages.appendChild(card);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function renderCart(cart) {
+    const list = document.getElementById('cart-list');
+    const total = document.getElementById('cart-total');
+    list.innerHTML = '';
+    if (!cart || cart.length === 0) {
+      list.innerHTML = '<li style="color:#666">Empty</li>';
+      total.textContent = '';
+      return;
+    }
+    let sum = 0;
+    cart.forEach(item => {
+      const li = document.createElement('li');
+      const lineTotal = item.quantity * item.unit_price_gbp;
+      sum += lineTotal;
+      li.textContent = `${item.product_name} ×${item.quantity} — £${lineTotal.toFixed(2)}`;
+      list.appendChild(li);
+    });
+    total.textContent = `Total: £${sum.toFixed(2)}`;
+  }
+
+  function renderPills(pills) {
+    const pillRow = document.getElementById('pill-row');
+    pillRow.innerHTML = '';
+    pills.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'pill';
+      btn.textContent = p.label;
+      btn.addEventListener('click', () => {
+        appendMessage('user', p.action);
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(p.action);
+        pillRow.innerHTML = '';
+      });
+      pillRow.appendChild(btn);
+    });
   }
 
   function appendMessage(role, text) {
@@ -113,6 +245,7 @@
     appendMessage('user', text);
     ws.send(text);
     userInput.value = '';
+    showTyping();
   }
 
   sendBtn.addEventListener('click', sendMessage);

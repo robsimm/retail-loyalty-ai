@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import cast
+
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
@@ -35,4 +37,4 @@ async def get_recommendations(
     if customer_id not in request.app.state.profiles_by_id:
         raise HTTPException(status_code=404, detail="Customer not found")
     req = RecommendationRequest(customer_id=customer_id, top_n=top_n)
-    return request.app.state.engine.predict(req)
+    return cast(list[Recommendation], request.app.state.engine.predict(req))

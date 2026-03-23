@@ -25,10 +25,12 @@ class ConversationContext(BaseModel):
     conversation_history: list[Message] = Field(default_factory=list)
     recommendations: list[Recommendation] = Field(default_factory=list)
     basket: list[dict[str, object]] = Field(default_factory=list)
+    last_order: dict[str, object] | None = None
 
 
 class AssistantResponse(BaseModel):
     message: str
+    pills: list[dict[str, str]] = Field(default_factory=list)
     recommended_product_ids: list[str] = Field(default_factory=list)
     follow_up_question: str | None = None
     order: Order | None = None

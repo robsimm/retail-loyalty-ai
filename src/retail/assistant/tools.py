@@ -129,6 +129,21 @@ def handle_tool_call(
             delivery_slot=slot,
             status="confirmed",
         )
+        context.last_order = {
+            "order_id": order.order_id,
+            "items": [
+                {
+                    "product_name": item.product_name,
+                    "quantity": item.quantity,
+                    "unit_price_gbp": item.unit_price_gbp,
+                    "line_total_gbp": item.line_total_gbp,
+                }
+                for item in items
+            ],
+            "total_gbp": order.total_gbp,
+            "delivery": slot_str,
+            "status": order.status,
+        }
         context.basket.clear()
         return f"Order {order.order_id} placed. Total: £{order.total_gbp:.2f}. Delivery: {slot_str}"
 

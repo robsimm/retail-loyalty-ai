@@ -21,7 +21,19 @@ def build_system_prompt(context: ConversationContext) -> str:
         f"When a customer says something like 'buy my usual items', use "
         f"get_recommendations then add_to_basket for their top items.\n"
         f"Always confirm before placing an order. Never place an order "
-        f"without explicit confirmation from the customer."
+        f"without explicit confirmation from the customer.\n\n"
+        f"RESPONSE FORMAT: Always reply in valid JSON with this exact shape:\n"
+        f'  {{"message": "<your reply>", "pills": [{{"label": "...", "action": "..."}}]}}\n\n'
+        f"Rules for 'message': write a natural conversational reply. When presenting "
+        f"products, lead with a brief personal sentence (e.g. 'Based on your shopping "
+        f"history, here are my top picks for you today:') — do NOT list the products "
+        f"in the message text.\n\n"
+        f"Rules for 'pills': include one pill per product when presenting recommendations "
+        f"or search results. Each label should be the product name only (short). Each "
+        f"action should be the literal message to send on click. "
+        f"IMPORTANT: for add-to-basket actions use the product_id not the name "
+        f"(e.g. 'Add PRD_00002 to my basket'). "
+        f"Use an empty list when no products are being offered."
     )
 
 

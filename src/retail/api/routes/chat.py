@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import json
+import logging
 import uuid
 
 from fastapi import APIRouter, HTTPException, Request, WebSocket
@@ -10,6 +12,7 @@ from retail.assistant.assistant import ShoppingAssistant
 from retail.assistant.domain import ConversationContext
 from retail.recommendations.domain import RecommendationRequest
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["chat"])
 
 
@@ -56,6 +59,18 @@ async def websocket_chat(websocket: WebSocket, session_id: str) -> None:
         while True:
             text = await websocket.receive_text()
             response = await asyncio.to_thread(assistant.chat, ctx, text)
-            await websocket.send_text(response.message)
-    except Exception:
-        pass
+            await websocket.send_text(
+                json.dumps({
+                    "message": response.message,
+                    "pills": response.pills,
+                    "cart": ctx.basket,
+                    "receipt": ctx.last_order,
+                })
+            )
+            ctx.last_order = None
+    except Exception as exc:
+        logger.exception("WebSocket chat error")
+        try:
+            await websocket.send_text(f"[Error] {exc}")
+        except Exception:
+            pass

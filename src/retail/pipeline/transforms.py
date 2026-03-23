@@ -23,6 +23,8 @@ def calculate_rfm(df: pl.DataFrame, as_of_date: date) -> pl.DataFrame:
     Frequency = count of non-return transactions
     Monetary  = sum of amount_gbp for non-return transactions
     """
+    if df.schema["timestamp"] == pl.String:
+        df = df.with_columns(pl.col("timestamp").str.to_datetime())
     non_returns = filter_returns(df)
     as_of = pl.lit(as_of_date)
 

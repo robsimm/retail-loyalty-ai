@@ -4,7 +4,6 @@ import os
 import sqlite3
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any
 
 import polars as pl
 from dotenv import load_dotenv
@@ -76,7 +75,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     app.state.catalogue = catalogue
     app.state.engine = engine
     app.state.profiles_by_id = {p.customer_id: p for p in profiles}
-    app.state.sessions: dict[str, Any] = {}
+    app.state.sessions = {}
 
     yield
 

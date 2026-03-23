@@ -11,7 +11,19 @@ Retail personalization POC: club-card ETL pipeline, KNN product recommendations,
 - Conversational shopping assistant (Claude Haiku) with tool use for search, basket management, and order placement
 - FastAPI REST API + WebSocket chat endpoint
 - Minimal browser UI to interact with the system end-to-end
-- 67 tests across unit, integration, and e2e layers
+- 74 unit tests across pipeline, recommendations, and assistant layers
+
+---
+
+## Screenshots
+
+| Recommendations | Basket |
+|---|---|
+| ![Chat with recommendations](docs/screenshots/chat-recommendations.png) | ![Basket in sidebar](docs/screenshots/basket-sidebar.png) |
+
+| Delivery slots | Order receipt |
+|---|---|
+| ![Delivery slot pills](docs/screenshots/delivery-slots.png) | ![Receipt card](docs/screenshots/order-receipt.png) |
 
 ---
 
