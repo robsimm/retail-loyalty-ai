@@ -7,7 +7,9 @@ import polars as pl
 from retail.pipeline.transforms import calculate_rfm, normalize_features, segment_by_rfm
 
 
-def build_rfm_profiles(transactions_df: pl.DataFrame, as_of_date: date | None = None) -> pl.DataFrame:
+def build_rfm_profiles(
+    transactions_df: pl.DataFrame, as_of_date: date | None = None
+) -> pl.DataFrame:
     """
     Full RFM pipeline: transactions → normalised, segmented RFM profiles.
 

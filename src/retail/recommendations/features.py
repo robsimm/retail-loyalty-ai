@@ -42,7 +42,11 @@ def feature_vector_from_profile(profile: ShopperProfile) -> np.ndarray:  # type:
      channel_preference_float,
      category_one_hot x10]
     """
-    rfm = profile.normalized_features[:3] if len(profile.normalized_features) >= 3 else [0.0, 0.0, 0.0]
+    rfm = (
+        profile.normalized_features[:3]
+        if len(profile.normalized_features) >= 3
+        else [0.0, 0.0, 0.0]
+    )
     channel = channel_to_float(profile.channel_preference)
     cats = category_one_hot(profile.preferred_categories)
     return np.array(rfm + [channel] + cats, dtype=np.float64)

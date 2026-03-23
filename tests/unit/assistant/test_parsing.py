@@ -9,7 +9,12 @@ from retail.assistant.parsing import extract_text_content, parse_tool_call
 @pytest.mark.unit
 def test_parse_tool_call_returns_correct_function_name() -> None:
     content = [
-        {"type": "tool_use", "id": "call_001", "name": "search_catalogue", "input": {"query": "milk"}},
+        {
+            "type": "tool_use",
+            "id": "call_001",
+            "name": "search_catalogue",
+            "input": {"query": "milk"},
+        },
     ]
     result = parse_tool_call(content)
     assert result is not None

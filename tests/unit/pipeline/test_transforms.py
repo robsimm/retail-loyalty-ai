@@ -1,10 +1,10 @@
 """Tests for pure Polars transform functions. TDD: tests written first."""
 from __future__ import annotations
 
-import pytest
 from datetime import date, datetime, timedelta
 
 import polars as pl
+import pytest
 
 from retail.pipeline.transforms import (
     calculate_rfm,
@@ -21,12 +21,21 @@ def make_tx_df(rows: list[dict]) -> pl.DataFrame:  # type: ignore[type-arg]
 @pytest.mark.unit
 def test_deduplicate_transactions_keeps_first_occurrence() -> None:
     df = make_tx_df([
-        {"transaction_id": "TX_001", "customer_id": "CUS_001", "amount_gbp": 10.0,
-         "category": "grocery", "timestamp": "2026-01-01", "channel": "instore", "is_return": False},
-        {"transaction_id": "TX_001", "customer_id": "CUS_001", "amount_gbp": 99.0,
-         "category": "grocery", "timestamp": "2026-01-02", "channel": "instore", "is_return": False},
-        {"transaction_id": "TX_002", "customer_id": "CUS_001", "amount_gbp": 5.0,
-         "category": "dairy", "timestamp": "2026-01-03", "channel": "instore", "is_return": False},
+        {
+            "transaction_id": "TX_001", "customer_id": "CUS_001", "amount_gbp": 10.0,
+            "category": "grocery", "timestamp": "2026-01-01", "channel": "instore",
+            "is_return": False,
+        },
+        {
+            "transaction_id": "TX_001", "customer_id": "CUS_001", "amount_gbp": 99.0,
+            "category": "grocery", "timestamp": "2026-01-02", "channel": "instore",
+            "is_return": False,
+        },
+        {
+            "transaction_id": "TX_002", "customer_id": "CUS_001", "amount_gbp": 5.0,
+            "category": "dairy", "timestamp": "2026-01-03", "channel": "instore",
+            "is_return": False,
+        },
     ])
     result = deduplicate_transactions(df)
     assert len(result) == 2
@@ -38,10 +47,16 @@ def test_deduplicate_transactions_keeps_first_occurrence() -> None:
 @pytest.mark.unit
 def test_deduplicate_transactions_no_duplicates_unchanged() -> None:
     df = make_tx_df([
-        {"transaction_id": "TX_001", "customer_id": "CUS_001", "amount_gbp": 10.0,
-         "category": "grocery", "timestamp": "2026-01-01", "channel": "instore", "is_return": False},
-        {"transaction_id": "TX_002", "customer_id": "CUS_001", "amount_gbp": 5.0,
-         "category": "dairy", "timestamp": "2026-01-02", "channel": "instore", "is_return": False},
+        {
+            "transaction_id": "TX_001", "customer_id": "CUS_001", "amount_gbp": 10.0,
+            "category": "grocery", "timestamp": "2026-01-01", "channel": "instore",
+            "is_return": False,
+        },
+        {
+            "transaction_id": "TX_002", "customer_id": "CUS_001", "amount_gbp": 5.0,
+            "category": "dairy", "timestamp": "2026-01-02", "channel": "instore",
+            "is_return": False,
+        },
     ])
     result = deduplicate_transactions(df)
     assert len(result) == 2
@@ -70,12 +85,21 @@ def test_calculate_rfm_recency_recent_purchase_returns_low_days() -> None:
 def test_calculate_rfm_frequency_counts_non_returns_only() -> None:
     base_time = datetime.now() - timedelta(days=5)
     df = pl.DataFrame([
-        {"transaction_id": "TX_001", "customer_id": "CUS_001", "amount_gbp": 10.0,
-         "category": "grocery", "timestamp": base_time.isoformat(), "channel": "instore", "is_return": False},
-        {"transaction_id": "TX_002", "customer_id": "CUS_001", "amount_gbp": 5.0,
-         "category": "grocery", "timestamp": base_time.isoformat(), "channel": "instore", "is_return": False},
-        {"transaction_id": "TX_003", "customer_id": "CUS_001", "amount_gbp": 8.0,
-         "category": "grocery", "timestamp": base_time.isoformat(), "channel": "instore", "is_return": True},
+        {
+            "transaction_id": "TX_001", "customer_id": "CUS_001", "amount_gbp": 10.0,
+            "category": "grocery", "timestamp": base_time.isoformat(),
+            "channel": "instore", "is_return": False,
+        },
+        {
+            "transaction_id": "TX_002", "customer_id": "CUS_001", "amount_gbp": 5.0,
+            "category": "grocery", "timestamp": base_time.isoformat(),
+            "channel": "instore", "is_return": False,
+        },
+        {
+            "transaction_id": "TX_003", "customer_id": "CUS_001", "amount_gbp": 8.0,
+            "category": "grocery", "timestamp": base_time.isoformat(),
+            "channel": "instore", "is_return": True,
+        },
     ])
     df = df.with_columns(pl.col("timestamp").str.to_datetime())
     rfm = calculate_rfm(df, date.today())

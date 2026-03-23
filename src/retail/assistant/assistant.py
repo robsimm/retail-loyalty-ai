@@ -25,7 +25,9 @@ class ShoppingAssistant:
 
     def __init__(self, catalogue: Catalogue, client: anthropic.Anthropic | None = None) -> None:
         self._catalogue = catalogue
-        self._client = client or anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
+        self._client = client or anthropic.Anthropic(
+            api_key=os.environ.get("ANTHROPIC_API_KEY", "")
+        )
 
     def chat(self, context: ConversationContext, user_message: str) -> AssistantResponse:
         """

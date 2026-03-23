@@ -106,7 +106,10 @@ def seed_database(db_path: str = "retail.db", n_customers: int = 1000) -> dict[s
             ts = (datetime.now() - timedelta(days=days_ago)).isoformat(timespec="seconds")
             cat = random.choice(CATEGORIES)
             amount = round(random.uniform(*cfg["spend_range"]), 2)
-            ch = "online" if channel == "online" else "instore" if channel == "instore" else random.choice(["online", "instore"])
+            if channel in ("online", "instore"):
+                ch = channel
+            else:
+                ch = random.choice(["online", "instore"])
             all_transactions.append((
                 str(uuid.uuid4()), cid, amount, cat, ts, ch, 0
             ))

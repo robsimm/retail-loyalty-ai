@@ -1,7 +1,7 @@
 """Tests for ShoppingAssistant — uses mocked Claude client."""
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -43,7 +43,7 @@ def test_assistant_contract_respects_max_tokens_constraint() -> None:
     assistant = ShoppingAssistant(catalogue=make_catalogue(), client=mock_client)
     ctx = ConversationContext(session_id="SES_001", profile=make_profile())
 
-    response = assistant.chat(ctx, "What do you recommend?")
+    assistant.chat(ctx, "What do you recommend?")
     call_kwargs = mock_client.messages.create.call_args.kwargs
     assert call_kwargs["max_tokens"] <= 1024
 

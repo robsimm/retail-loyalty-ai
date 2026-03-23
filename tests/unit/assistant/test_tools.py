@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import json
+
 import pytest
 
-from retail.assistant.tools import TOOLS, handle_tool_call
 from retail.assistant.domain import ConversationContext
+from retail.assistant.tools import TOOLS, handle_tool_call
 from tests.conftest import make_catalogue, make_profile
 
 
@@ -30,7 +31,13 @@ def test_tool_definitions_are_valid_json_schema() -> None:
 @pytest.mark.unit
 def test_tool_definitions_include_required_tools() -> None:
     names = {t["name"] for t in TOOLS}
-    expected = {"search_catalogue", "get_recommendations", "add_to_basket", "place_order", "check_delivery_slots"}
+    expected = {
+        "search_catalogue",
+        "get_recommendations",
+        "add_to_basket",
+        "place_order",
+        "check_delivery_slots",
+    }
     assert expected.issubset(names)
 
 
@@ -53,7 +60,9 @@ def test_handle_add_to_basket_adds_item() -> None:
     catalogue = make_catalogue()
     product_id = catalogue.products[0].product_id
     ctx = make_context()
-    result = handle_tool_call("add_to_basket", {"product_id": product_id, "quantity": 2}, ctx, catalogue)
+    result = handle_tool_call(
+        "add_to_basket", {"product_id": product_id, "quantity": 2}, ctx, catalogue
+    )
     assert len(ctx.basket) == 1
     assert "Added" in result
 
@@ -61,7 +70,9 @@ def test_handle_add_to_basket_adds_item() -> None:
 @pytest.mark.unit
 def test_handle_place_order_requires_items_in_basket() -> None:
     ctx = make_context()
-    result = handle_tool_call("place_order", {"delivery_slot": "tomorrow 9am-1pm"}, ctx, make_catalogue())
+    result = handle_tool_call(
+        "place_order", {"delivery_slot": "tomorrow 9am-1pm"}, ctx, make_catalogue()
+    )
     assert "empty" in result.lower()
 
 
