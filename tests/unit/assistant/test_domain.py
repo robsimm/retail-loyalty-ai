@@ -1,8 +1,9 @@
 """Tests for assistant domain models."""
 from __future__ import annotations
 
-import pytest
 from datetime import datetime
+
+import pytest
 
 from retail.assistant.domain import AssistantResponse, ConversationContext, Message
 from tests.conftest import make_profile

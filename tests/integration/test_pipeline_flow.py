@@ -1,10 +1,10 @@
 """Integration tests: CSV / DataFrame → RFM profiles end-to-end."""
 from __future__ import annotations
 
-import pytest
 from datetime import date, datetime, timedelta
 
 import polars as pl
+import pytest
 
 from retail.pipeline.pipeline import TransactionPipeline
 

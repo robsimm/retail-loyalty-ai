@@ -1,10 +1,10 @@
 """Tests for RFM calculation pipeline."""
 from __future__ import annotations
 
-import pytest
 from datetime import date, datetime, timedelta
 
 import polars as pl
+import pytest
 
 from retail.pipeline.rfm import build_rfm_profiles
 

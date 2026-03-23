@@ -5,7 +5,6 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-
 Channel = Literal["online", "instore"]
 SegmentLabel = Literal["champions", "loyal", "at_risk", "lost"]
 

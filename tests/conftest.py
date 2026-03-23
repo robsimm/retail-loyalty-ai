@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import random
 from datetime import datetime, timedelta
 
-import pytest
 import polars as pl
+import pytest
 
 from retail.domain.customer import ShopperProfile
-from retail.domain.order import DeliverySlot, Order, OrderItem
 from retail.domain.product import Catalogue, Product
 from retail.pipeline.domain import Transaction
 

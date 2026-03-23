@@ -1,15 +1,15 @@
 """Tests for feature engineering functions."""
 from __future__ import annotations
 
-import pytest
 import numpy as np
+import pytest
 
 from retail.recommendations.features import (
+    CATEGORY_VOCAB,
     category_one_hot,
     channel_to_float,
     cosine_similarity,
     feature_vector_from_profile,
-    CATEGORY_VOCAB,
 )
 from tests.conftest import make_profile
 

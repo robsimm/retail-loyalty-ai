@@ -9,7 +9,6 @@ from retail.domain.customer import ShopperProfile
 from retail.domain.order import Order
 from retail.recommendations.domain import Recommendation
 
-
 Role = Literal["user", "assistant"]
 
 

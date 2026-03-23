@@ -1,10 +1,11 @@
 """Tests for pipeline domain models. TDD: tests written first."""
 from __future__ import annotations
 
-import pytest
 from datetime import datetime, timedelta
 
-from retail.pipeline.domain import Transaction, RFMSegment, TransactionBatch
+import pytest
+
+from retail.pipeline.domain import RFMSegment, Transaction, TransactionBatch
 
 
 @pytest.mark.unit

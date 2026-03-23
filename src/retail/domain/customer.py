@@ -4,7 +4,6 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-
 AgeBracket = Literal["18-24", "25-34", "35-44", "45-54", "55-64", "65+"]
 ChannelPreference = Literal["online", "instore", "both"]
 RFMSegmentLabel = Literal["champions", "loyal", "at_risk", "lost"]
