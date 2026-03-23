@@ -28,7 +28,9 @@ async def get_profile(customer_id: str, request: Request) -> ProfileResponse:
 
 
 @router.get("/customers/{customer_id}/recommendations", response_model=list[Recommendation])
-async def get_recommendations(customer_id: str, request: Request, top_n: int = 10) -> list[Recommendation]:
+async def get_recommendations(
+    customer_id: str, request: Request, top_n: int = 10
+) -> list[Recommendation]:
     """Get personalised recommendations for a customer."""
     if customer_id not in request.app.state.profiles_by_id:
         raise HTTPException(status_code=404, detail="Customer not found")
